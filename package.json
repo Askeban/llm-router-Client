@@ -1,0 +1,83 @@
+{
+  "name": "llm-router-recommender",
+  "displayName": "LLM Router — Model Recommender",
+  "description": "Recommends the best LLM for your prompt using your llm-router-go backend, and can switch Copilot's model (best effort).",
+  "publisher": "your-publisher",
+  "version": "0.2.0",
+  "engines": { "vscode": "^1.85.0" },
+  "categories": ["Other"],
+  "activationEvents": [
+    "onCommand:llmRouter.recommend",
+    "onCommand:llmRouter.routeAndOpenChat",
+    "onStartupFinished"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "llmRouter.recommend",
+        "title": "LLM Router: Recommend Model",
+        "category": "LLM Router"
+      },
+      {
+        "command": "llmRouter.routeAndOpenChat",
+        "title": "LLM Router: Route & Open Copilot Chat",
+        "category": "LLM Router"
+      }
+    ],
+    "configuration": {
+      "title": "LLM Router",
+      "properties": {
+        "llmRouter.apiBase": {
+          "type": "string",
+          "default": "http://localhost:8080",
+          "description": "Base URL of the llm-router-go service."
+        },
+        "llmRouter.timeoutMs": {
+          "type": "number",
+          "default": 5000,
+          "description": "HTTP timeout in milliseconds."
+        },
+        "llmRouter.collectOpenFileContext": {
+          "type": "boolean",
+          "default": true,
+          "description": "Include current editor content in routing context (truncated)."
+        },
+        "llmRouter.maxContextChars": {
+          "type": "number",
+          "default": 4000,
+          "description": "Max characters to include from the active editor."
+        },
+        "llmRouter.prioritize": {
+          "type": "string",
+          "default": "quality",
+          "enum": ["quality", "cost", "latency"],
+          "description": "Routing preference sent to the backend."
+        },
+        "llmRouter.allowTruncation": {
+          "type": "boolean",
+          "default": false,
+          "description": "Allow model selection when prompt exceeds context."
+        },
+        "llmRouter.enableAutoSwitchCopilot": {
+          "type": "boolean",
+          "default": true,
+          "description": "Attempt to set Copilot's model automatically after a recommendation."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p .",
+    "watch": "tsc -w",
+    "lint": "echo \"add eslint if you want\"",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.12",
+    "@types/vscode": "^1.85.0",
+    "typescript": "^5.4.3",
+    "vsce": "^2.15.0"
+  }
+}
+
