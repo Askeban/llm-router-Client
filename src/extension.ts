@@ -3,6 +3,14 @@ import { selectModel } from "./api";
 import { gatherPromptAndContext } from "./context";
 import { trySetCopilotModel } from "./copilot";
 
+type Priority = "quality" | "cost" | "latency";
+
+function getPriorityFromConfig(cfg: vscode.WorkspaceConfiguration): Priority {
+  const raw = cfg.get<string>("llmRouter.prioritize", "quality");
+  if (raw === "cost" || raw === "latency" || raw === "quality") return raw;
+  return "quality";
+}
+
 async function openCopilotChatWithPrompt(prompt: string): Promise<void> {
   // Try several commands across Copilot/VS Code versions
   const candidates: { id: string; args?: any[] }[] = [
@@ -55,7 +63,7 @@ export function activate(context: vscode.ExtensionContext) {
       prompt,
       context: { language, files },
       preferences: {
-        prioritize: cfg.get<string>("llmRouter.prioritize", "quality"),
+        prioritize: getPriorityFromConfig(cfg),
         allow_truncation: cfg.get<boolean>("llmRouter.allowTruncation", false)
       }
     };
@@ -111,7 +119,7 @@ export function activate(context: vscode.ExtensionContext) {
       prompt,
       context: { language, files },
       preferences: {
-        prioritize: cfg.get<string>("llmRouter.prioritize", "quality"),
+        prioritize: getPriorityFromConfig(cfg),
         allow_truncation: cfg.get<boolean>("llmRouter.allowTruncation", false)
       }
     };
