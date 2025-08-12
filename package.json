@@ -7,77 +7,58 @@
   "engines": { "vscode": "^1.85.0" },
   "categories": ["Other"],
   "activationEvents": [
-    "onCommand:llmRouter.recommend",
-    "onCommand:llmRouter.routeAndOpenChat",
+    "onCommand:routerChat.open",
+    "onView:routerChat.view",
     "onStartupFinished"
   ],
-  "main": "./dist/extension.js",
+  "main": "./out/extension.js",
   "contributes": {
     "commands": [
-      {
-        "command": "llmRouter.recommend",
-        "title": "LLM Router: Recommend Model",
-        "category": "LLM Router"
-      },
-      {
-        "command": "llmRouter.routeAndOpenChat",
-        "title": "LLM Router: Route & Open Copilot Chat",
-        "category": "LLM Router"
-      }
+      { "command": "routerChat.open", "title": "Router Chat: Open" },
+      { "command": "routerChat.reset", "title": "Router Chat: Reset Session" },
+      { "command": "routerChat.send", "title": "Router Chat: Send" },
+      { "command": "router.handoffToCopilot", "title": "Router: Open Copilot Chat (uses Copilot request)" }
     ],
     "configuration": {
       "title": "LLM Router",
       "properties": {
-        "llmRouter.apiBase": {
-          "type": "string",
-          "default": "http://localhost:8080",
-          "description": "Base URL of the llm-router-go service."
-        },
-        "llmRouter.timeoutMs": {
-          "type": "number",
-          "default": 5000,
-          "description": "HTTP timeout in milliseconds."
-        },
-        "llmRouter.collectOpenFileContext": {
-          "type": "boolean",
-          "default": true,
-          "description": "Include current editor content in routing context (truncated)."
-        },
-        "llmRouter.maxContextChars": {
-          "type": "number",
-          "default": 4000,
-          "description": "Max characters to include from the active editor."
-        },
-        "llmRouter.prioritize": {
-          "type": "string",
-          "default": "quality",
-          "enum": ["quality", "cost", "latency"],
-          "description": "Routing preference sent to the backend."
-        },
-        "llmRouter.allowTruncation": {
-          "type": "boolean",
-          "default": false,
-          "description": "Allow model selection when prompt exceeds context."
-        },
-        "llmRouter.enableAutoSwitchCopilot": {
-          "type": "boolean",
-          "default": true,
-          "description": "Attempt to set Copilot's model automatically after a recommendation."
-        }
+        "router.apiBase": { "type": "string", "default": "http://localhost:8080", "description": "Base URL for llm-router-go" },
+        "router.apiKey": { "type": "string", "default": "", "markdownDescription": "API key for llm-router-go (sent as `X-API-Key`)." },
+        "router.addSelectionMaxKB": { "type": "number", "default": 128, "description": "Max KB to include per selection/file." },
+        "router.confidenceThreshold": { "type": "number", "default": 0.55, "description": "Min confidence to show inline hints." },
+        "router.showInlineHints": { "type": "boolean", "default": true, "description": "Show diagnostics/CodeLens/StatusBar suggestions." },
+        "router.enableCopilotParticipant": { "type": "boolean", "default": false, "markdownDescription": "Enable @router in Copilot Chat. **Consumes Copilot requests.**" }
       }
+    },
+    "viewsContainers": {
+      "activitybar": [
+        { "id": "routerChat", "title": "Router", "icon": "media/icon.svg" }
+      ]
+    },
+    "views": {
+      "routerChat": [
+        { "type": "webview", "id": "routerChat.view", "name": "Router Chat" }
+      ]
     }
   },
   "scripts": {
-    "compile": "tsc -p .",
-    "watch": "tsc -w",
-    "lint": "echo \"add eslint if you want\"",
-    "package": "vsce package"
+    "compile": "tsc -p ./",
+    "watch": "tsc -w -p ./",
+    "package": "vsce package",
+    "test": "mocha --config .mocharc.json --timeout 10000"
   },
   "devDependencies": {
-    "@types/node": "^20.12.12",
+    "@types/node": "^20.11.0",
+    "@types/mocha": "^10.0.0",
     "@types/vscode": "^1.85.0",
-    "typescript": "^5.4.3",
+    "mocha": "^10.4.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.0",
+    "@vscode/test-electron": "^2.3.8",
     "vsce": "^2.15.0"
+  },
+  "dependencies": {
+    "undici": "^6.19.8"
   }
 }
 
