@@ -1,51 +1,36 @@
-# LLM Router — Model Recommender (VSCode)
+# LLM Router Client
 
-This extension calls your **llm-router-go** backend to recommend the best model for a given prompt. It can optionally attempt to set **Copilot’s active model** automatically.
+VS Code extension that connects to your **llm-router-go** backend to recommend the best model.
 
-## Setup
+## Cost-free path (Sidebar)
+1. Run `npm i && npm run compile` then press **F5** to launch the Extension Development Host.
+2. Open the **Router** view from the Activity Bar.
+3. Type a prompt and optionally add selection, file, open editors, or clipboard.
+4. Click **Send**. The response shows `recommended_model`, `rationale`, and `alternatives`.
+5. Use the buttons to copy the prompt or recommended model.
 
-1. Run your router:
-export ROUTER_CONFIG=configs/models.yaml
-go run ./cmd/router
+## Copilot integration (flagged)
+1. Enable the `router.enableCopilotParticipant` setting.
+2. ⚠️ Using `@router` in Copilot Chat **consumes Copilot requests**.
+3. In Copilot Chat, type `@router Recommend model for this file`.
+4. The `Router: Open Copilot Chat` command copies a prompt and opens Chat for manual paste.
 
-→ listening on http://localhost:8080
+## Configuration
 
-2. In this folder:
-npm install
-npm run compile
+| Key | Default | Description |
+| --- | --- | --- |
+| `router.apiBase` | `http://localhost:8080` | Base URL for llm-router-go |
+| `router.apiKey` | `` | API key sent as `X-API-Key` |
+| `router.addSelectionMaxKB` | `128` | Max KB to include per selection/file |
+| `router.confidenceThreshold` | `0.55` | Min confidence to show inline hints |
+| `router.showInlineHints` | `true` | Show diagnostics/CodeLens/StatusBar suggestions |
+| `router.enableCopilotParticipant` | `false` | Enable @router in Copilot Chat (uses Copilot) |
 
-Press F5 in VSCode to launch Extension Development Host
+## Manual test steps
 
-3. Configure (File → Preferences → Settings → “LLM Router”):
-- `llmRouter.apiBase`: `http://localhost:8080`
-- `llmRouter.prioritize`: `quality` | `cost` | `latency`
-- Toggle context collection if you prefer.
-
-## Use
-
-- Select code or text, press `Ctrl/Cmd+Shift+P` → **LLM Router: Recommend Model**.
-- The extension shows a recommendation and lets you:
-- **Set Copilot model (best effort)**
-- Copy model id
-- Open settings
-
-> Note: VSCode/Copilot may change settings keys over time. The extension tries common keys but will gracefully fall back if it can’t write them.
-
-## Privacy
-
-The extension sends your prompt (and optionally active editor content, truncated) to the router you configure (default: localhost). No third-party calls are made by this extension.
-How to run it
-In a new folder vscode-llm-router, paste these files.
-
-npm install → npm run compile.
-
-Press F5 in VSCode to start the Extension Development Host.
-
-Make sure your router is running on http://localhost:8080.
-
-Select some code/text → run “LLM Router: Recommend Model”.
-
-Try the Set Copilot model option — if Copilot exposes a writable model setting in your build, it’ll switch; otherwise you’ll get a gentle heads-up to set it manually.
-
-- **LLM Router: Route & Open Copilot Chat** → routes, switches model (best effort), and opens Copilot Chat pre-filled with your prompt (clipboard fallback if necessary).
-
+1. Run `llm-router-go` with `/v1/recommend` endpoint.
+2. In this repo: `npm i && npm run compile` → F5.
+3. Sidebar → enter prompt, add selection, send.
+4. Verify response shows `recommended_model`, `rationale`, `alternatives`.
+5. Toggle `router.showInlineHints` → CodeLens + StatusBar appear/disappear.
+6. (Optional) Enable participant flag, open Copilot Chat → type `@router Recommend model for this file`. Observe billing notice.
